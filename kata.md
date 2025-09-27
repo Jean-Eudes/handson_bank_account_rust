@@ -27,18 +27,20 @@ Le projet est divisé en trois modules :
 
 ### Enoncé
 
-#### Step 1
+#### Domain 1
 
 Création de la structure `BankAccount` contenant les champs suivants :
   - `account_number` de type `String`
   - `initial_amount` de type `u64`
 
-
 Créer une fonction appelée `create_new_account` qui prend en paramètre un `account_number` et un `initial_amount` et qui retourne une instance de `BankAccount`.
 
 Créer une méthode nommée `balance` qui retourne le solde du compte (pour le moment le montant initial).
 
-#### Step 2
+#### Test
+cargo test --features domain1
+
+#### Domain 2
 
 Création d'un enum `Transaction` contenant les variants suivants :
   - `Deposit`
@@ -54,40 +56,39 @@ Ajouter un champ `transactions` de type `Vec<Transaction>` à la structure `Bank
 
 Mettre à jour la fonction `create_new_account` pour initialiser le champ `transactions` avec un vecteur vide.
 
+#### Test
+cargo test --features domain2
 
-#### Step 3
+#### Domain 3
 
 Création de deux méthodes `deposit` et `withdraw` sur la structure `BankAccount` prenant en paramètre un `amount` de type `u64`.
 Ces méthodes créent une nouvelle instance de `Transaction` et l'ajoutent au champ `transactions`.
 
 Mettre à jour la méthode `balance` pour prendre en compte les transactions.
 
-### Tests
-
-```bash
-
-cargo test
-```
-
-### Documentation
+#### Test
+cargo test --features domain3
 
 ## Mise en place du repository
 
 ### Objectifs
 
-- implémentation d'un trait
-- Manipuler l'api collection
+- Implémentation d'un trait
+- Manipulation de l'api collection
+- Visibilité des élements du modules
+- Trait PartialEq pour tester l'égalité
 
 ### Enoncé
 
-Dans le module repository, créer une structure `BankAccountAdapter` contenant deux `HashMap` :
+#### Infra 1
+
+Dans le module repository, créer une structure `BankAccountAdapter` contenant une `HashMap` :
   - `accounts` : pour stocker les comptes
-  - `transactions` : pour stocker les transactions
 
 Création d'une implémentation de l'interface `BankAccountRepository` pour cette structure.
 
-Pour la méthode `save_account` : stocker 
-
+Pour les méthode:
+- `save_account` : stocker les information des comptes bancaires
+- `load` : lire les informations des comptes boncaires
+  
 ## Mise en place de la partie web
-
-### 
