@@ -10,12 +10,14 @@ domain3 = ["domain2"]
 domain4 = ["domain3"]
 domain5 = ["domain4"]
 infra1 = ["domain3"]
+application1 = ["infra1"]
+application2 = ["application1"]
 
 [dependencies]
 chrono = { version = "0.4.40", features = ["serde"] }
 axum = { version = "0.8.3", features = ["macros", "http2"] }
 tokio = { version = "1.44.1", features = ["rt-multi-thread", "signal"] }
-sqlx = { version = "0.8.3", features = [ "runtime-tokio", "postgres", "chrono", "bigdecimal"] }
+sqlx = { version = "0.8.3", features = ["runtime-tokio", "postgres", "chrono", "bigdecimal"] }
 serde = { version = "1.0.219", features = ["derive"] }
 dotenv = "0.15.0"
 uuid = { version = "1.13.1", features = ["v4"] }
@@ -26,4 +28,5 @@ mockall = "0.13.1"
 
 [dev-dependencies]
 axum-test = "18.1.0"
+ctor = "0.5.0"
 mockall = "0.13.1"

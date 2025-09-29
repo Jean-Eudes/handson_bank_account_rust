@@ -23,6 +23,7 @@ impl BankAccountUseCase {
     }
 }
 
+#[allow(unused_imports)]
 #[cfg(test)]
 mod test {
     use crate::domain::bank_account::BankAccount;
@@ -40,12 +41,12 @@ mod test {
             .with(eq(account))
             .return_const(());
 
-        let user_case = BankAccountUseCase::new(Box::new(port));
+        let mut user_case = BankAccountUseCase::new(Box::new(port));
 
         user_case.create(String::from("A0001"), 200);
     }
 
-    //#[cfg(feature = "domain5")]
+    #[cfg(feature = "domain5")]
     #[test]
     fn should_load_account() {
         let mut port = MockBankAccountPort::new();

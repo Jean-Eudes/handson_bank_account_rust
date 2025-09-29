@@ -50,7 +50,7 @@ async fn shutdown_signal() {
 
     tokio::select! {_ = ctrl_c => {info!("received ctrl + C")}}
 }
-
+#[allow(unused_imports)]
 #[cfg(test)]
 mod tests {
     use crate::domain::bank_account::BankAccount;
@@ -58,10 +58,10 @@ mod tests {
     use crate::domain::use_case::BankAccountUseCase;
     use crate::router;
     use axum::http::StatusCode;
+    use axum_test::expect_json::__private::serde_json::json;
     use axum_test::TestServer;
     use mockall::predicate::eq;
     use std::sync::Mutex;
-    use axum_test::expect_json::__private::serde_json::json;
 
     #[tokio::test]
     async fn it_works() {
@@ -71,9 +71,8 @@ mod tests {
             .once()
             .with(eq(String::from("A0001")))
             .return_const(account.clone());
-        let useCase = BankAccountUseCase::new(Box::new(port));
 
-        let server = TestServer::new(router(Mutex::new(useCase))).unwrap();
+        let server = setUpServer(port);
 
         let response = server.get("/accounts/A0001").await;
 
@@ -90,16 +89,11 @@ mod tests {
             .once()
             .with(eq(String::from("A0001")))
             .return_const(None);
-        let useCase = BankAccountUseCase::new(Box::new(port));
-
-        let server = TestServer::new(router(Mutex::new(useCase))).unwrap();
+        let server = setUpServer(port);
 
         let response = server.get("/accounts/A0001").await;
 
-        assert_eq!(
-            response.status_code(),
-            StatusCode::NOT_FOUND
-        );
+        assert_eq!(response.status_code(), StatusCode::NOT_FOUND);
     }
 
     #[tokio::test]
@@ -110,12 +104,19 @@ mod tests {
             .once()
             .with(eq(account))
             .return_const(());
-        let useCase = BankAccountUseCase::new(Box::new(port));
+        let server = setUpServer(port);
 
-        let server = TestServer::new(router(Mutex::new(useCase))).unwrap();
-
-        let response = server.post("/accounts").json(&json!({"initial_amount":200,"account_id":"A0001"})).await;
+        let response = server
+            .post("/accounts")
+            .json(&json!({"initial_amount":200,"account_id":"A0001"}))
+            .await;
 
         assert_eq!(response.status_code(), StatusCode::CREATED);
+    }
+
+    fn setUpServer(port: MockBankAccountPort) -> TestServer {
+        let useCase = BankAccountUseCase::new(Box::new(port));
+        let server = TestServer::new(router(Mutex::new(useCase))).unwrap();
+        server
     }
 }

@@ -14,6 +14,7 @@ impl BankAccount {
          account_number, initial_amount, transactions: vec![]
         }
     }
+
     pub fn balance(&self) -> i64 {
         self.transactions.iter()
             .fold(self.initial_amount, |acc, transaction| acc + transaction.amount())
@@ -53,7 +54,7 @@ impl Transaction {
         }
     }
 }
-
+#[allow(unused_imports)]
 #[cfg(test)]
 mod tests {
     use super::*;

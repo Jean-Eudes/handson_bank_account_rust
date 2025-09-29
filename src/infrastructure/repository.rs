@@ -25,9 +25,13 @@ impl BankAccountPort for BankAccountAdapter {
         accountResult.cloned()
     }
 }
-
+#[allow(unused_imports)]
 #[cfg(test)]
 mod test {
+    use crate::domain::bank_account::BankAccount;
+    use crate::domain::port::BankAccountPort;
+    use crate::infrastructure::repository::BankAccountAdapter;
+
     #[cfg(feature = "infra1")]
     #[test]
     fn should_save_account() {

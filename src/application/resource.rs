@@ -15,6 +15,7 @@ pub struct BankAccountInput {
 pub struct BankAccountResource {
     initial_amount: i64,
     account_id: String,
+    balance: i64
 }
 
 pub async fn create_account(State(state): State<AppState>, Json(payload): Json<BankAccountInput>) -> impl IntoResponse {
@@ -37,6 +38,7 @@ pub async fn fetch(
             Json(BankAccountResource {
                 account_id: String::from(account.account_number()),
                 initial_amount: account.initial_amount(),
+                balance: account.balance()
             }),
         )
             .into_response(),
@@ -45,6 +47,7 @@ pub async fn fetch(
 }
 
 // Est ce vraiment utile vu la compléxité du test et les tests déjà fait du côté main
+#[allow(unused_imports)]
 #[cfg(test)]
 mod tests {
     use crate::application::resource::{
@@ -61,6 +64,7 @@ mod tests {
     use mockall::predicate::eq;
     use std::sync::{Arc, Mutex};
 
+    #[cfg(feature = "application1")]
     #[tokio::test]
     async fn should_load_account() {
         let mut port = MockBankAccountPort::new();
@@ -83,12 +87,14 @@ mod tests {
             Json(BankAccountResource {
                 initial_amount: 200,
                 account_id: String::from("A0001"),
+                balance: 200
             }),
         )
             .into_response();
         assert_eq!(result.status(), expectedResponse.status());
     }
 
+    #[cfg(feature = "application2")]
     #[tokio::test]
     async fn should_not_load_account_when_account_not_found() {
         let mut port = MockBankAccountPort::new();
@@ -109,6 +115,7 @@ mod tests {
         assert_eq!(result.status(), expectedResponse.status());
     }
 
+    #[cfg(feature = "application2")]
     #[tokio::test]
     async fn should_create_account() {
         let mut port = MockBankAccountPort::new();
