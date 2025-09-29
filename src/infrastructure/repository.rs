@@ -1,13 +1,14 @@
 use crate::domain::bank_account::BankAccount;
 use crate::domain::port::BankAccountPort;
+use serde::Serialize;
 use std::collections::HashMap;
 
-struct BankAccountAdapter {
+pub struct BankAccountAdapter {
     accounts: HashMap<String, BankAccount>
 }
 
 impl BankAccountAdapter {
-    fn new() -> Self {
+    pub fn new() -> Self {
         BankAccountAdapter {
             accounts: HashMap::new(),
         }

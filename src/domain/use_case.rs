@@ -1,33 +1,34 @@
 use crate::domain::bank_account::BankAccount;
 use crate::domain::port::BankAccountPort;
 
-struct BankAccountUseCase {
+
+pub struct BankAccountUseCase {
     bank_account_port: Box<dyn BankAccountPort>,
 }
 
 impl BankAccountUseCase {
-    fn new(adapter: Box<dyn BankAccountPort>) -> BankAccountUseCase {
+    pub fn new(adapter: Box<dyn BankAccountPort>) -> BankAccountUseCase {
         BankAccountUseCase {
             bank_account_port: adapter,
         }
     }
 
-    fn create(mut self, account_number: String, initial_amount: i64) {
+    pub fn create(&mut self, account_number: String, initial_amount: i64) {
         let account = BankAccount::create_new_account(account_number, initial_amount);
         self.bank_account_port.save_account(account)
     }
 
-    fn fetch(self, account_number: String) -> Option<BankAccount> {
+    pub fn fetch(&self, account_number: String) -> Option<BankAccount> {
         self.bank_account_port.load(&account_number)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use mockall::predicate::eq;
     use crate::domain::bank_account::BankAccount;
     use crate::domain::port::MockBankAccountPort;
     use crate::domain::use_case::BankAccountUseCase;
+    use mockall::predicate::eq;
 
     #[cfg(feature = "domain4")]
     #[test]
@@ -44,7 +45,7 @@ mod test {
         user_case.create(String::from("A0001"), 200);
     }
 
-    #[cfg(feature = "domain5")]
+    //#[cfg(feature = "domain5")]
     #[test]
     fn should_load_account() {
         let mut port = MockBankAccountPort::new();
