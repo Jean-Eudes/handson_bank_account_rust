@@ -3,6 +3,6 @@ use mockall::automock;
 
 #[automock]
 pub trait BankAccountPort: Send + Sync {
-    fn save_account(&mut self, bankAccount: BankAccount);
-    fn load(&self, accountNumber: &String) -> Option<BankAccount>;
+    fn save_account(&mut self, bank_account: &BankAccount);
+    fn load(&self, account_number: &String) -> Option<BankAccount>;
 }

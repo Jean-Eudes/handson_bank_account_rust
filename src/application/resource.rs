@@ -1,7 +1,8 @@
+use crate::domain::bank_account::BankAccount;
 use crate::AppState;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +10,11 @@ use serde::{Deserialize, Serialize};
 pub struct BankAccountInput {
     initial_amount: i64,
     account_id: String,
+}
+
+#[derive(Deserialize)]
+pub struct DepositAndWithdrawInput {
+    amount: i64
 }
 
 #[derive(Serialize, Debug)]
@@ -27,12 +33,32 @@ pub async fn create_account(State(state): State<AppState>, Json(payload): Json<B
     StatusCode::CREATED
 }
 
+pub async fn deposit(State(state): State<AppState>, Path(account_number): Path<String>, Json(payload): Json<DepositAndWithdrawInput>)-> impl IntoResponse {
+    state
+        .use_case
+        .lock()
+        .unwrap()
+        .deposit(account_number, payload.amount)
+        .map(|account| to_response(account))
+        .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
+}
+
+pub async fn withdraw(State(state): State<AppState>, Path(account_number): Path<String>, Json(payload): Json<DepositAndWithdrawInput>) -> impl IntoResponse {
+    state
+        .use_case
+        .lock()
+        .unwrap()
+        .withdraw(account_number, payload.amount)
+        .map(|account| to_response(account))
+        .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
+}
+
 pub async fn fetch(
     State(state): State<AppState>,
     Path(account_number): Path<String>,
 ) -> impl IntoResponse {
-    let foundBankAccount = state.use_case.lock().unwrap().fetch(account_number);
-    match foundBankAccount {
+    let found_bank_account = state.use_case.lock().unwrap().fetch(account_number);
+    match found_bank_account {
         Some(account) => (
             StatusCode::OK,
             Json(BankAccountResource {
@@ -40,106 +66,16 @@ pub async fn fetch(
                 initial_amount: account.initial_amount(),
                 balance: account.balance()
             }),
-        )
-            .into_response(),
+        ).into_response(),
         None => StatusCode::NOT_FOUND.into_response(),
     }
 }
 
-// Est ce vraiment utile vu la compléxité du test et les tests déjà fait du côté main
-#[allow(unused_imports)]
-#[cfg(test)]
-mod tests {
-    use crate::application::resource::{
-        create_account, fetch, BankAccountInput, BankAccountResource,
-    };
-    use crate::domain::bank_account::BankAccount;
-    use crate::domain::port::MockBankAccountPort;
-    use crate::domain::use_case::BankAccountUseCase;
-    use crate::AppState;
-    use axum::extract::{Path, State};
-    use axum::http::StatusCode;
-    use axum::response::IntoResponse;
-    use axum::Json;
-    use mockall::predicate::eq;
-    use std::sync::{Arc, Mutex};
-
-    #[cfg(feature = "application1")]
-    #[tokio::test]
-    async fn should_load_account() {
-        let mut port = MockBankAccountPort::new();
-        let account = BankAccount::create_new_account(String::from("A0001"), 200);
-        port.expect_load()
-            .once()
-            .with(eq(String::from("A0001")))
-            .return_const(account.clone());
-        let useCase = BankAccountUseCase::new(Box::new(port));
-        let state = AppState {
-            use_case: Arc::new(Mutex::new(useCase)),
-        };
-
-        let result = fetch(State(state), Path(String::from("A0001")))
-            .await
-            .into_response();
-
-        let expectedResponse = (
-            StatusCode::OK,
-            Json(BankAccountResource {
-                initial_amount: 200,
-                account_id: String::from("A0001"),
-                balance: 200
-            }),
-        )
-            .into_response();
-        assert_eq!(result.status(), expectedResponse.status());
-    }
-
-    #[cfg(feature = "application2")]
-    #[tokio::test]
-    async fn should_not_load_account_when_account_not_found() {
-        let mut port = MockBankAccountPort::new();
-        port.expect_load()
-            .once()
-            .with(eq(String::from("A0001")))
-            .return_const(None);
-        let useCase = BankAccountUseCase::new(Box::new(port));
-        let state = AppState {
-            use_case: Arc::new(Mutex::new(useCase)),
-        };
-
-        let result = fetch(State(state), Path(String::from("A0001")))
-            .await
-            .into_response();
-
-        let expectedResponse = StatusCode::NOT_FOUND.into_response();
-        assert_eq!(result.status(), expectedResponse.status());
-    }
-
-    #[cfg(feature = "application2")]
-    #[tokio::test]
-    async fn should_create_account() {
-        let mut port = MockBankAccountPort::new();
-        let account = BankAccount::create_new_account(String::from("A0001"), 200);
-        port.expect_save_account()
-            .once()
-            .with(eq(account))
-            .return_const(());
-        let useCase = BankAccountUseCase::new(Box::new(port));
-        let state = AppState {
-            use_case: Arc::new(Mutex::new(useCase)),
-        };
-
-        let result = create_account(
-            State(state),
-            Json(BankAccountInput {
-                account_id: String::from("A0001"),
-                initial_amount: 200,
-            }),
-        )
-        .await
-        .into_response();
-
-        let expectedResponse = StatusCode::CREATED.into_response();
-        assert_eq!(result.status(), expectedResponse.status());
-    }
+fn to_response(account: BankAccount) -> Response {
+    (StatusCode::OK,
+     Json(BankAccountResource {
+         account_id: String::from(account.account_number()),
+         initial_amount: account.initial_amount(),
+         balance: account.balance(),
+     })).into_response()
 }

@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BankAccount {
@@ -35,6 +34,7 @@ impl BankAccount {
         self.initial_amount
     }
 
+    #[allow(dead_code)]
     pub fn transactions(&self) -> &Vec<Transaction> {
         &self.transactions
     }
@@ -59,11 +59,6 @@ impl Transaction {
 mod tests {
     use super::*;
     use chrono::Utc;
-
-    #[test]
-    fn truc() {
-        let time = Utc::now();
-    }
 
     #[cfg(feature = "domain1")]
     #[test]

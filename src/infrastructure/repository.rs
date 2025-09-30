@@ -1,6 +1,5 @@
 use crate::domain::bank_account::BankAccount;
 use crate::domain::port::BankAccountPort;
-use serde::Serialize;
 use std::collections::HashMap;
 
 pub struct BankAccountAdapter {
@@ -16,13 +15,13 @@ impl BankAccountAdapter {
 }
 
 impl BankAccountPort for BankAccountAdapter {
-    fn save_account(&mut self, bankAccount: BankAccount){
-        self.accounts.insert(bankAccount.account_number().clone(), bankAccount);
+    fn save_account(&mut self, bank_account: &BankAccount){
+        self.accounts.insert(bank_account.account_number().clone(), bank_account.clone());
     }
 
-    fn load(&self, accountNumber: &String) -> Option<BankAccount> {
-        let accountResult = self.accounts.get(accountNumber);
-        accountResult.cloned()
+    fn load(&self, account_number: &String) -> Option<BankAccount> {
+        let account_result = self.accounts.get(account_number);
+        account_result.cloned()
     }
 }
 #[allow(unused_imports)]
@@ -40,13 +39,13 @@ mod test {
 
         let mut repository = BankAccountAdapter::new();
 
-        repository.save_account(account);
+        repository.save_account(&account);
         assert!(repository.accounts.contains_key(&String::from("A001")));
         assert_eq!(repository.accounts.get(&String::from("A001")).unwrap().initial_amount(), 200);
         assert!(repository.accounts.get(&String::from("A001")).unwrap().transactions().is_empty());
     }
-    #[cfg(feature = "infra2")]
-    #[test]
+   #[cfg(feature = "infra2")]
+   #[test]
     fn should_load_account() {
         let mut repository = BankAccountAdapter::new();
         let account = BankAccount::create_new_account(String::from("A001"), 200);

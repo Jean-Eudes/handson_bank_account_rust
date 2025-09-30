@@ -1,7 +1,6 @@
 use crate::domain::bank_account::BankAccount;
 use crate::domain::port::BankAccountPort;
 
-
 pub struct BankAccountUseCase {
     bank_account_port: Box<dyn BankAccountPort>,
 }
@@ -15,7 +14,21 @@ impl BankAccountUseCase {
 
     pub fn create(&mut self, account_number: String, initial_amount: i64) {
         let account = BankAccount::create_new_account(account_number, initial_amount);
-        self.bank_account_port.save_account(account)
+        self.bank_account_port.save_account(&account)
+    }
+
+    pub fn withdraw(&mut self, account_number: String, amount: i64) -> Option<BankAccount> {
+        let mut account = self.bank_account_port.load(&account_number)?;
+        account.with_draw(amount);
+        self.bank_account_port.save_account(&account);
+        Some(account)
+    }
+
+    pub fn deposit(&mut self, account_number: String, amount: i64) -> Option<BankAccount> {
+        let mut account = self.bank_account_port.load(&account_number)?;
+        account.deposit(amount);
+        self.bank_account_port.save_account(&account);
+        Some(account)
     }
 
     pub fn fetch(&self, account_number: String) -> Option<BankAccount> {
