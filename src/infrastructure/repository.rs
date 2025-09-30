@@ -28,6 +28,7 @@ impl BankAccountPort for BankAccountAdapter {
 #[allow(unused_imports)]
 #[cfg(test)]
 mod test {
+    use axum_test::util::new_random_port;
     use crate::domain::bank_account::BankAccount;
     use crate::domain::port::BankAccountPort;
     use crate::infrastructure::repository::BankAccountAdapter;
@@ -43,5 +44,16 @@ mod test {
         assert!(repository.accounts.contains_key(&String::from("A001")));
         assert_eq!(repository.accounts.get(&String::from("A001")).unwrap().initial_amount(), 200);
         assert!(repository.accounts.get(&String::from("A001")).unwrap().transactions().is_empty());
+    }
+    #[cfg(feature = "infra2")]
+    #[test]
+    fn should_load_account() {
+        let mut repository = BankAccountAdapter::new();
+        let account = BankAccount::create_new_account(String::from("A001"), 200);
+        repository.accounts.insert(String::from("A001"), account.clone());
+
+        let result = repository.load(&String::from("A001"));
+
+        assert_eq!(matches!(result, Some(account)), true)
     }
 }
