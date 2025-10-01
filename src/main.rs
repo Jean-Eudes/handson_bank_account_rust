@@ -67,6 +67,25 @@ mod tests {
 
     #[cfg(feature = "application1")]
     #[tokio::test]
+    async fn should_create_account() {
+        let mut port = MockBankAccountPort::new();
+        let account = BankAccount::create_new_account(String::from("A0001"), 200);
+        port.expect_save_account()
+            .once()
+            .with(eq(account))
+            .return_const(());
+        let server = set_up_server(port);
+
+        let response = server
+            .post("/accounts")
+            .json(&json!({"initial_amount":200,"account_id":"A0001"}))
+            .await;
+
+        assert_eq!(response.status_code(), StatusCode::CREATED);
+    }
+
+    #[cfg(feature = "application2")]
+    #[tokio::test]
     async fn should_load_account() {
         let mut port = MockBankAccountPort::new();
         let account = BankAccount::create_new_account(String::from("A0001"), 200);
@@ -85,7 +104,7 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "application1")]
+    #[cfg(feature = "application2")]
     #[tokio::test]
     async fn should_not_load_account_when_account_not_found() {
         let mut port = MockBankAccountPort::new();
@@ -100,26 +119,7 @@ mod tests {
         assert_eq!(response.status_code(), StatusCode::NOT_FOUND);
     }
 
-    #[cfg(feature = "application1")]
-    #[tokio::test]
-    async fn should_create_account() {
-        let mut port = MockBankAccountPort::new();
-        let account = BankAccount::create_new_account(String::from("A0001"), 200);
-        port.expect_save_account()
-            .once()
-            .with(eq(account))
-            .return_const(());
-        let server = set_up_server(port);
-
-        let response = server
-            .post("/accounts")
-            .json(&json!({"initial_amount":200,"account_id":"A0001"}))
-            .await;
-
-        assert_eq!(response.status_code(), StatusCode::CREATED);
-    }
-
-    #[cfg(feature = "application1")]
+    #[cfg(feature = "application3")]
     #[tokio::test]
     async fn should_deposit_in_account() {
         let mut port = MockBankAccountPort::new();
@@ -145,7 +145,7 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "application1")]
+    #[cfg(feature = "application3")]
     #[tokio::test]
     async fn should_not_deposit_when_account_not_found() {
         let mut port = MockBankAccountPort::new();
@@ -165,7 +165,7 @@ mod tests {
         assert_eq!(response.status_code(), StatusCode::NOT_FOUND);
     }
 
-    #[cfg(feature = "application1")]
+    #[cfg(feature = "application4")]
     #[tokio::test]
     async fn should_not_withdraw_when_account_not_found() {
         let mut port = MockBankAccountPort::new();
@@ -185,7 +185,7 @@ mod tests {
         assert_eq!(response.status_code(), StatusCode::NOT_FOUND);
     }
 
-    #[cfg(feature = "application1")]
+    #[cfg(feature = "application4")]
     #[tokio::test]
     async fn should_withdraw_from_account() {
         let mut port = MockBankAccountPort::new();
@@ -211,6 +211,7 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "application1")]
     fn set_up_server(port: MockBankAccountPort) -> TestServer {
         let use_case = BankAccountUseCase::new(Box::new(port));
         let server = TestServer::new(router(Mutex::new(use_case))).unwrap();

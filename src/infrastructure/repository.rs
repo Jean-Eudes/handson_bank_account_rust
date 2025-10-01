@@ -53,6 +53,6 @@ mod test {
 
         let result = repository.load(&String::from("A001"));
 
-        assert_eq!(matches!(result, Some(account)), true)
+        assert_eq!(result, Some(account))
     }
 }
