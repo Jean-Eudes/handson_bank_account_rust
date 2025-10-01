@@ -17,17 +17,49 @@ Le projet est divisé en trois modules :
 
 ## Installation de Rust
 
+Pour installer Rust, il faut suivre les instructions de la page https://rust-lang.org/tools/install/. L'installation diffère selon la plateforme (windows, linux ou macos).
+
+### Installation sur windows
+
+Pour windows, il y a deux façons d'installer rust :
+- directement sous windows, mais avec en prérequis `Visual Studio C++ build`.
+- en utilisant le sous système `WSL` (Windows Subsystem for Linux).
+
+La seconde méthode est généralement plus simple.
+
+### Installation sur linux ou macos
+
+Pour Linux ou macos, si rustup est présent dans votre package manager, vous pouvez aussi l'installer avec si vous préférez.
+
+Par exemple pour archlinux
+```bash
+sudo pacman -Sy rustup
+rustup default stable # permet d'installer le compilateur rustc ainsi que cargo
+```
+
+Cet installeur installe aussi le compilateur Rust `rustc` et le gestionnaire de build `cargo`. 
+Il permet par la suite de mettre à jour ces outils en utilisant la commande `rustup update`.
+
 ## Mise en place du domaine
+
+Dans cette section, nous allons créer la structure de données représentant un compte bancaire, ainsi que les opérations possibles sur ce compte.
+
+Notre domain contiendra uniquement la logique métier, sans dépendance vers un framework web ou une base de données, et va être inspiré du DDD.
+
+Pour cette étape, l'ensemble du code est dans le module `domain`. Les tests sont codés, et vous pourrez passer à l'étape suivante une fois que les tests seront OK pour une étape.
+La commande pour lancer les tests pour une étape est donnée en dessous de l'énoncé de chaque étape.
+
+Des liens vers la documentation vous seront également fourni pour vous aider dans les exercices.
 
 ### Objectifs
 
 - Création de structure et d'énumérations
-- Création de fonction
-- Création de méthode
+- Création de fonctions
+- Création de méthodes
 
-### Enoncé
+### Étape 1
 
-#### Domain 1
+#### Énoncé
 
 Création de la structure `BankAccount` contenant les champs suivants :
 - `account_number` de type `String`
@@ -38,16 +70,23 @@ Créer une fonction appelée `create_new_account` qui prend en paramètre un `ac
 Créer une méthode nommée `balance` qui retourne le solde du compte (pour le moment le montant initial).
 
 #### Test
+```bash
+cargo test --features domain1
+```
 
-```cargo test --features domain1```
+#### Lien utile
 
-#### Domain 2
+- https://doc.rust-lang.org/book/ch05-01-defining-structs.html
+
+### Étape 2
+
+#### Énoncé
 
 Création d'un enum `Transaction` contenant les variants suivants :
 - `Deposit`
 - `Withdraw`
--
-avec chacun les champs suivants :
+
+Avec pour chacun les deux champs suivants :
 - `date` de type `DateTime<Utc>`
 - `amount` de type `u64`
 
@@ -58,10 +97,17 @@ Ajouter un champ `transactions` de type `Vec<Transaction>` à la structure `Bank
 Mettre à jour la fonction `create_new_account` pour initialiser le champ `transactions` avec un vecteur vide.
 
 #### Test
+```bash
+cargo test --features domain2
+```
 
-```cargo test --features domain2```
+#### Lien utile
+- https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html
+- https://doc.rust-lang.org/rust-by-example/std/vec.html
 
-#### Domain 3
+### Étape 3
+
+#### Énoncé
 
 Création de deux méthodes `deposit` et `withdraw` sur la structure `BankAccount` prenant en paramètre un `amount` de type `u64`.
 Ces méthodes créent une nouvelle instance de `Transaction` et l'ajoutent au champ `transactions`.
@@ -69,45 +115,28 @@ Ces méthodes créent une nouvelle instance de `Transaction` et l'ajoutent au ch
 Mettre à jour la méthode `balance` pour prendre en compte les transactions.
 
 #### Test
+```bash
+cargo test --features domain3
+```
 
-```cargo test --features domain3```
+#### Lien utile
+- https://doc.rust-lang.org/std/vec/struct.Vec.html
 
-#### Domain 4
 
-La structure UseCase est le service qui nous permettra d'interagir avec notre port et nos classe métier pour effectuer des actions tell que:
+### Étape 4
+
+#### Énoncé
+
+Dans le fichier `use_cases.rs`, créer deux fonctions :
+- `deposit` : qui prend en paramètre un mutable reference vers un `BankAccount` et un `amount` de type `u64`, et qui appelle la méthode `deposit` sur le compte bancaire, et sauvegarde le compte dans le repository.
+- `withdraw` : qui prend en paramètre un mutable reference vers un `BankAccount` et un `amount` de type `u64`, et qui appelle la méthode `withdraw` sur le compte bancaire et sauvegarde le compte dans le repository.
 - Creation de nouveau compte
 - Chargement d'un compte
-- Retrait/Dépot d'argent
-
-Dans cette étape le but est d'implémenter la méthode `create` qui permet de créer un nouveau compte à partir d'un montant initial et d'un numéro de compte
 
 #### Test
-
-```cargo test --features domain4```
-
-#### Domain 5
-
-Dans cette étape le but est d'implémenter la méthode `load` qui permet de charger un compte à partir d'un numéro de compte
-
-#### Test
-
-```cargo test --features domain5```
-
-#### Domain 6
-
-Dans cette étape le but est d'implémenter la méthode `deposit` qui permet de déposer un montant sur un compte
-
-#### Test
-
-```cargo test --features domain6```
-
-#### Domain 7
-
-Dans cette étape le but est d'implémenter la méthode `withdraw` qui permet de retirer un montant depuis un compte
-
-#### Test
-
-```cargo test --features domain7```
+```bash
+cargo test --features domain4
+```
 
 ## Mise en place du repository
 
@@ -118,29 +147,22 @@ Dans cette étape le but est d'implémenter la méthode `withdraw` qui permet de
 - Visibilité des élements du modules
 - Trait PartialEq pour tester l'égalité
 
-### Enoncé
+### Énoncé
 
 #### Infra 1
 
 Dans le module repository, créer une structure `BankAccountAdapter` contenant une `HashMap` :
 - `accounts` : pour stocker les comptes
 
-Création d'une implémentation de l'interface `BankAccountRepository` pour cette structure et implementer  `save_account` : stocker les information des comptes bancaires
-Pour la méthode:
+Création d'une implémentation de l'interface `BankAccountRepository` pour cette structure.
+
+Pour les méthodes :
 - `save_account` : stocker les informations des comptes bancaires
+- `load` : lire les informations des comptes bancaires
 
-#### Test
-
-```cargo test --features infra1```
-
-### Infra 2 
-
-Implementer la méthode :
-- `load` : pour lire les informations d'un compte bancaire
-
-#### Test
-
-```cargo test --features infra2```
+```bash
+cargo test --features infra1
+```
 
 ## Mise en place de la partie web
 
