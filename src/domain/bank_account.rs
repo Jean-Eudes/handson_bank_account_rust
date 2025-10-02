@@ -4,37 +4,26 @@ use chrono::{DateTime, Utc};
 pub struct BankAccount {
     account_number: String,
     initial_amount: i64,
-    transactions: Vec<Transaction>,
+    transactions: Vec<Transaction>
 }
 
 impl BankAccount {
     pub fn create_new_account(account_number: String, initial_amount: i64) -> BankAccount {
-        BankAccount {
-            account_number,
-            initial_amount,
-            transactions: vec![],
+        BankAccount{
+         account_number, initial_amount, transactions: vec![]
         }
     }
 
     pub fn balance(&self) -> i64 {
-        self.transactions
-            .iter()
-            .fold(self.initial_amount, |acc, transaction| {
-                acc + transaction.amount()
-            })
+        self.transactions.iter()
+            .fold(self.initial_amount, |acc, transaction| acc + transaction.amount())
     }
 
     pub fn deposit(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Deposit {
-            amount,
-            date: Utc::now(),
-        })
+        self.transactions.push(Transaction::Deposit {amount, date: Utc::now()})
     }
     pub fn with_draw(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Withdraw {
-            amount,
-            date: Utc::now(),
-        })
+        self.transactions.push(Transaction::Withdraw {amount, date: Utc::now()})
     }
 
     pub fn account_number(&self) -> &str {
@@ -60,8 +49,8 @@ pub enum Transaction {
 impl Transaction {
     pub fn amount(&self) -> i64 {
         match self {
-            Transaction::Deposit { amount, .. } => *amount,
-            Transaction::Withdraw { amount, .. } => -amount,
+            Transaction::Deposit{amount, ..} => *amount,
+            Transaction::Withdraw{amount, ..} => -amount
         }
     }
 }
@@ -88,7 +77,7 @@ mod tests {
         // Given
         let account = BankAccount::create_new_account("account_number".to_string(), 1_000);
 
-        // When & Then
+        // When / Then
         assert_eq!(account.balance(), 1_000);
     }
 
@@ -96,10 +85,7 @@ mod tests {
     #[test]
     fn should_compute_transaction_deposit_amount() {
         // Given
-        let transaction = Transaction::Deposit {
-            amount: 1_000,
-            date: Utc::now(),
-        };
+        let transaction = Transaction::Deposit { amount: 1_000, date: Utc::now() };
 
         // When & Then
         assert_eq!(transaction.amount(), 1_000);
@@ -109,10 +95,7 @@ mod tests {
     #[test]
     fn should_compute_transaction_withdraw_amount() {
         // Given
-        let transaction = Transaction::Withdraw {
-            amount: 1_000,
-            date: Utc::now(),
-        };
+        let transaction = Transaction::Withdraw { amount: 1_000, date: Utc::now() };
 
         // When & Then
         assert_eq!(transaction.amount(), -1_000);

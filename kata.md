@@ -91,7 +91,8 @@ Avec pour chacun les deux champs suivants :
 - `date` de type `DateTime<Utc>`
 - `amount` de type `u64`
 
-Création d'une méthode `amount` renvoyant le montant de la transaction.
+Création d'une méthode `amount` renvoyant le montant de la transaction, qui renvoie le montant en valeur relative.
+C'est à dire que pour un dépôt, le montant sera positif, et pour un retrait le montant doit être négatif.
 
 Ajouter un champ `transactions` de type `Vec<Transaction>` à la structure `BankAccount`.
 
