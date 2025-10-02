@@ -258,9 +258,11 @@ Cette route doit retourner un code HTTP 201 en cas de succès, et un code HTTP 4
 
 #### Test
 
-```cargo test --features application1```
+```bash
+cargo test --features application1
+```
 
-#### Application 2
+#### Énoncé
 
 Implementation de la route `load` permettant de charger un élement depuis à l'aide de notre UseCase
 
@@ -276,9 +278,11 @@ Response body:
 Si l'élément n'existe pas, renvoyer un code HTTP 404
 #### Test
 
-```cargo test --features application2```
+```bash
+cargo test --features application2
+```
 
-#### Application 3
+#### Énoncé
 
 Implementation de la route `deposit` permettant de déposer un montant sur un compte bancaire à l'aide de notre UseCase
 
@@ -291,9 +295,11 @@ HTTP Response code 200 OK
 ```
 #### Test
 
-```cargo test --features application3```
+```bash
+cargo test --features application3
+```
 
-#### Application 4
+#### Énoncé
 
 Implementation de la route `withdraw` permettant de retirer un montant depuis un compte bancaire à l'aide de notre UseCase
 
@@ -306,8 +312,9 @@ HTTP Response code 200 OK
 ```
 #### Test
 
-```cargo test --features application4```
-
+```bash
+cargo test --features application4
+```
 
 #### Tips
 
@@ -330,3 +337,4 @@ curl -X POST http://localhost:3000/accounts \
 - https://tokio.rs/tokio/tutorial
 - https://docs.rs/axum/latest/axum/
 - https://doc.rust-lang.org/std/result/
+- https://doc.rust-lang.org/rust-by-example/error/result.html
