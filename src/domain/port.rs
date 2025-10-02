@@ -1,8 +1,8 @@
+use crate::domain::bank_account::BankAccount;
 use mockall::automock;
-use crate::domain::bank_account::{BankAccount, Transaction};
 
 #[automock]
-pub trait BankAccountPort {
-    fn save_account(&mut self, bankAccount: BankAccount);
-    fn load(&self, accountNumber: &String) -> Option<BankAccount>;
+pub trait BankAccountPort: Send + Sync {
+    fn save_account(&mut self, bank_account: &BankAccount);
+    fn load(&self, account_number: &String) -> Option<BankAccount>;
 }
