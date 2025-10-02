@@ -328,9 +328,16 @@ Cette commande lance le serveur web sur le port 3000. Vous pouvez ensuite le tes
 
 Exemple de commande curl :
 ```bash
-curl -X POST http://localhost:3000/accounts \
+curl http://localhost:3000/accounts \
   -H "Content-Type: application/json" \
-  -d '{"initial_amount": 200, "account_id": "A001"}'
+  -d '{"initial_amount": 200, "account_id": "A002"}'
+curl http://localhost:3000/accounts/A002/deposits \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 50}'
+curl http://localhost:3000/accounts/A002/withdraws \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 100}'
+curl http://localhost:3000/accounts/A002
 ```
 #### Lien utile
 - https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html
