@@ -12,19 +12,19 @@ impl BankAccountUseCase {
         }
     }
 
-    pub fn create(&mut self, account_number: String, initial_amount: i64) {
+    pub fn create(&self, account_number: String, initial_amount: i64) {
         let account = BankAccount::create_new_account(account_number, initial_amount);
         self.bank_account_port.save_account(&account)
     }
 
-    pub fn withdraw(&mut self, account_number: String, amount: i64) -> Option<BankAccount> {
+    pub fn withdraw(&self, account_number: String, amount: i64) -> Option<BankAccount> {
         let mut account = self.bank_account_port.load(&account_number)?;
         account.with_draw(amount);
         self.bank_account_port.save_account(&account);
         Some(account)
     }
 
-    pub fn deposit(&mut self, account_number: String, amount: i64) -> Option<BankAccount> {
+    pub fn deposit(&self, account_number: String, amount: i64) -> Option<BankAccount> {
         let mut account = self.bank_account_port.load(&account_number)?;
         account.deposit(amount);
         self.bank_account_port.save_account(&account);
@@ -55,12 +55,12 @@ mod test {
             .with(eq(account))
             .return_const(());
 
-        let mut user_case = BankAccountUseCase::new(Box::new(port));
+        let user_case = BankAccountUseCase::new(Box::new(port));
 
         user_case.create(String::from("A0001"), 200);
     }
 
-    #[cfg(feature = "domain5")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_load_account() {
         let mut port = MockBankAccountPort::new();
@@ -75,7 +75,7 @@ mod test {
         assert_eq!(user_case.fetch(String::from("A0001")), Some(account));
     }
 
-    #[cfg(feature = "domain6")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_deposit_in_account() {
         let mut port = MockBankAccountPort::new();
@@ -86,16 +86,24 @@ mod test {
             .return_const(account.clone());
         port.expect_save_account()
             .once()
-            .withf(|ac| ac.balance() == 300)
+            .withf(|ac| {
+                matches!(
+                    ac.transactions().get(0).unwrap(),
+                    Transaction::Deposit {
+                        date: _date,
+                        amount: 100
+                    }
+                )
+            })
             .return_const(());
-        let mut user_case = BankAccountUseCase::new(Box::new(port));
+        let user_case = BankAccountUseCase::new(Box::new(port));
 
         let result = user_case.deposit(String::from("A0001"), 100);
 
         assert!(result.is_some());
     }
 
-    #[cfg(feature = "domain7")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_withdraw_from_account() {
         let mut port = MockBankAccountPort::new();
@@ -106,9 +114,18 @@ mod test {
             .return_const(account.clone());
         port.expect_save_account()
             .once()
-            .withf(|ac| ac.balance() == 100)
+            .withf(|ac| {
+                matches!(
+                    ac.transactions().get(0).unwrap(),
+                    Transaction::Withdraw {
+                        date: _date,
+                        amount: 100
+                    }
+                )
+            })
+
             .return_const(());
-        let mut user_case = BankAccountUseCase::new(Box::new(port));
+        let user_case = BankAccountUseCase::new(Box::new(port));
 
         let result = user_case.withdraw(String::from("A0001"), 100);
 

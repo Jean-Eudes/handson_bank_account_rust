@@ -26,7 +26,7 @@ impl BankAccount {
         self.transactions.push(Transaction::Withdraw {amount, date: Utc::now()})
     }
 
-    pub fn account_number(&self) -> &String {
+    pub fn account_number(&self) -> &str {
         &self.account_number
     }
 
@@ -77,7 +77,7 @@ mod tests {
         // Given
         let account = BankAccount::create_new_account("account_number".to_string(), 1_000);
 
-        // When & Then
+        // When / Then
         assert_eq!(account.balance(), 1_000);
     }
 
