@@ -17,10 +17,10 @@ impl BankAccountAdapter {
 
 impl BankAccountPort for BankAccountAdapter {
     fn save_account(&self, bank_account: &BankAccount) {
-        self.accounts.lock().unwrap().insert(bank_account.account_number().clone(), bank_account.clone());
+        self.accounts.lock().unwrap().insert(bank_account.account_number().to_string(), bank_account.clone());
     }
 
-    fn load(&self, account_number: &String) -> Option<BankAccount> {
+    fn load(&self, account_number: &str) -> Option<BankAccount> {
         let guard = self.accounts.lock().unwrap();
         let account_result = guard.get(account_number);
         account_result.cloned()
@@ -43,9 +43,9 @@ mod test {
 
         repository.save_account(&account);
         let lock = repository.accounts.lock().unwrap();
-        assert!(lock.contains_key(&String::from("A001")));
-        assert_eq!(lock.get(&String::from("A001")).unwrap().initial_amount(), 200);
-        assert!(lock.get(&String::from("A001")).unwrap().transactions().is_empty());
+        assert!(lock.contains_key("A001"));
+        assert_eq!(lock.get("A001").unwrap().initial_amount(), 200);
+        assert!(lock.get("A001").unwrap().transactions().is_empty());
     }
     #[cfg(feature = "infra1")]
     #[test]
@@ -55,7 +55,7 @@ mod test {
         let mut lock = repository.accounts.lock().unwrap();
         lock.insert(String::from("A001"), account.clone());
         drop(lock);
-        let result = repository.load(&String::from("A001"));
+        let result = repository.load("A001");
 
         assert_eq!(result, Some(account))
     }
