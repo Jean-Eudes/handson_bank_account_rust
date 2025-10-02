@@ -86,7 +86,15 @@ mod test {
             .return_const(account.clone());
         port.expect_save_account()
             .once()
-            .withf(|ac| ac.balance() == 300)
+            .withf(|ac| {
+                matches!(
+                    ac.transactions().get(0).unwrap(),
+                    Transaction::Deposit {
+                        date: _date,
+                        amount: 100
+                    }
+                )
+            })
             .return_const(());
         let user_case = BankAccountUseCase::new(Box::new(port));
 
@@ -106,7 +114,16 @@ mod test {
             .return_const(account.clone());
         port.expect_save_account()
             .once()
-            .withf(|ac| ac.balance() == 100)
+            .withf(|ac| {
+                matches!(
+                    ac.transactions().get(0).unwrap(),
+                    Transaction::Withdraw {
+                        date: _date,
+                        amount: 100
+                    }
+                )
+            })
+
             .return_const(());
         let user_case = BankAccountUseCase::new(Box::new(port));
 

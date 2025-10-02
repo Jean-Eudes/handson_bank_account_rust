@@ -21,8 +21,8 @@ impl BankAccountPort for BankAccountAdapter {
     }
 
     fn load(&self, account_number: &str) -> Option<BankAccount> {
-        let guard = self.accounts.lock().unwrap();
-        let account_result = guard.get(account_number);
+        let lock = self.accounts.lock().unwrap();
+        let account_result = lock.get(account_number);
         account_result.cloned()
     }
 }
