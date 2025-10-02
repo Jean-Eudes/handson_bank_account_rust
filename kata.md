@@ -272,8 +272,8 @@ Response body:
     "initial_amount": 200,
     "account_id": "A001"
 }
-
 ```
+Si l'élément n'existe pas, renvoyer un code HTTP 404
 #### Test
 
 ```cargo test --features application2```
