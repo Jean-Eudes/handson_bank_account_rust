@@ -200,7 +200,7 @@ cargo test --features infra1
 
 #### Tips
 
-Pour le `Mutex`, nous remarquons que le unlock va automiquement être invoqué quand nous sortons de la méthode.
+Pour le `Mutex`, nous remarquons que le unlock va automatiquement être appelé quand nous sortons de la méthode.
 Ce pattern s'appelle le RAII (Resource Acquisition Is Initialization).
 Quand une variable sort de son scope, sa méthode `drop` est automatiquement appelée, ce qui permet de libérer les ressources, donc dans notre cas de libérer le lock.
 
@@ -213,15 +213,23 @@ Quand une variable sort de son scope, sa méthode `drop` est automatiquement app
 
 ## Mise en place de la partie web
 
+#### Introduction
+
+Dans cette partie, nous allons implémenter la partie REST de notre micro services.
+Pour celà, nous avons choisi le framework axum, qui possède une syntaxe à la `express` (framework JS)
+pour exposer nos routes.
+
+Aum est un framework qui fair partie de l'écosystème d'un autre framework très populaire : `tokio`.
+`tokio` est un framework permettant de faire de la programmation asynchrone en rust, à l'aide de la syntaxe `async/await`. (très proche de la syntaxe JS)
+
 ### Objectifs
 
-- Implémentation d'un route avec le framework AXUM
+- Implémentation d'une route avec le framework AXUM
 - Serialisation et déserialisation des objets JSON
-- Gestion des Mutex
 
-### Enoncé
+### Étape 5
 
-#### Application 1
+#### Énoncé
 
 Implementation de la route `create` permettant de créer un nouveau compte bancaire
 
@@ -285,3 +293,7 @@ HTTP Response code 200 OK
 #### Test
 
 ```cargo test --features application4```
+
+#### Lien utile
+- https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html
+- https://docs.rs/axum/latest/axum/
