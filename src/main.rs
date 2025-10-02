@@ -5,7 +5,6 @@ use axum::routing::{get, post};
 use axum::Router;
 use std::sync::Arc;
 use tokio::signal;
-use tokio::sync::Mutex;
 use tracing::info;
 
 mod application;
@@ -14,13 +13,13 @@ mod infrastructure;
 
 #[derive(Clone)]
 pub struct AppState {
-    use_case: Arc<Mutex<BankAccountUseCase>>,
+    use_case: Arc<BankAccountUseCase>,
 }
 
 #[tokio::main]
 async fn main() {
     let adapter = BankAccountAdapter::new();
-    let use_case = Mutex::new(BankAccountUseCase::new(Box::new(adapter)));
+    let use_case = BankAccountUseCase::new(Box::new(adapter));
     let router = router(use_case);
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
@@ -33,7 +32,7 @@ async fn main() {
         .unwrap()
 }
 
-fn router(use_case: Mutex<BankAccountUseCase>) -> Router {
+fn router(use_case: BankAccountUseCase) -> Router {
     Router::new()
         .route("/accounts", post(create_account))
         .route("/accounts/{account_number}", get(fetch))
@@ -216,7 +215,7 @@ mod tests {
     #[cfg(feature = "application1")]
     fn set_up_server(port: MockBankAccountPort) -> TestServer {
         let use_case = BankAccountUseCase::new(Box::new(port));
-        let server = TestServer::new(router(Mutex::new(use_case))).unwrap();
+        let server = TestServer::new(router(use_case)).unwrap();
         server
     }
 }

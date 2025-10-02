@@ -27,8 +27,6 @@ pub struct BankAccountResource {
 pub async fn create_account(State(state): State<AppState>, Json(payload): Json<BankAccountInput>) -> impl IntoResponse {
     state
         .use_case
-        .lock()
-        .await
         .create(payload.account_id, payload.initial_amount);
     StatusCode::CREATED
 }
@@ -36,8 +34,6 @@ pub async fn create_account(State(state): State<AppState>, Json(payload): Json<B
 pub async fn deposit(State(state): State<AppState>, Path(account_number): Path<String>, Json(payload): Json<DepositAndWithdrawInput>)-> impl IntoResponse {
     state
         .use_case
-        .lock()
-        .await
         .deposit(account_number, payload.amount)
         .map(|account| to_response(account))
         .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
@@ -46,8 +42,6 @@ pub async fn deposit(State(state): State<AppState>, Path(account_number): Path<S
 pub async fn withdraw(State(state): State<AppState>, Path(account_number): Path<String>, Json(payload): Json<DepositAndWithdrawInput>) -> impl IntoResponse {
     state
         .use_case
-        .lock()
-        .await
         .withdraw(account_number, payload.amount)
         .map(|account| to_response(account))
         .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
@@ -59,8 +53,6 @@ pub async fn fetch(
 ) -> impl IntoResponse {
     let found_bank_account = state
         .use_case
-        .lock()
-        .await
         .fetch(account_number);
 
     match found_bank_account {
