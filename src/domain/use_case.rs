@@ -13,26 +13,19 @@ impl BankAccountUseCase {
     }
 
     pub fn create(&self, account_number: String, initial_amount: i64) {
-        let account = BankAccount::create_new_account(account_number, initial_amount);
-        self.bank_account_port.save_account(&account)
+        todo!()
     }
 
     pub fn withdraw(&self, account_number: String, amount: i64) -> Option<BankAccount> {
-        let mut account = self.bank_account_port.load(&account_number)?;
-        account.with_draw(amount);
-        self.bank_account_port.save_account(&account);
-        Some(account)
+        todo!()
     }
 
     pub fn deposit(&self, account_number: String, amount: i64) -> Option<BankAccount> {
-        let mut account = self.bank_account_port.load(&account_number)?;
-        account.deposit(amount);
-        self.bank_account_port.save_account(&account);
-        Some(account)
+        todo!()
     }
 
     pub fn fetch(&self, account_number: String) -> Option<BankAccount> {
-        self.bank_account_port.load(&account_number)
+        todo!()
     }
 }
 

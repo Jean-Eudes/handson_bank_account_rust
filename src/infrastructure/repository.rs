@@ -17,13 +17,11 @@ impl BankAccountAdapter {
 
 impl BankAccountPort for BankAccountAdapter {
     fn save_account(&self, bank_account: &BankAccount) {
-        self.accounts.lock().unwrap().insert(bank_account.account_number().to_string(), bank_account.clone());
+        todo!()
     }
 
     fn load(&self, account_number: &str) -> Option<BankAccount> {
-        let lock = self.accounts.lock().unwrap();
-        let account_result = lock.get(account_number);
-        account_result.cloned()
+        todo!()
     }
 }
 #[allow(unused_imports)]

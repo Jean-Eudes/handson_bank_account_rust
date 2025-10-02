@@ -1,59 +1,11 @@
 use chrono::{DateTime, Utc};
 
-#[derive(Clone, Debug, PartialEq)]
 pub struct BankAccount {
-    account_number: String,
-    initial_amount: i64,
-    transactions: Vec<Transaction>
 }
 
-impl BankAccount {
-    pub fn create_new_account(account_number: String, initial_amount: i64) -> BankAccount {
-        BankAccount{
-         account_number, initial_amount, transactions: vec![]
-        }
-    }
-
-    pub fn balance(&self) -> i64 {
-        self.transactions.iter()
-            .fold(self.initial_amount, |acc, transaction| acc + transaction.amount())
-    }
-
-    pub fn deposit(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Deposit {amount, date: Utc::now()})
-    }
-    pub fn with_draw(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Withdraw {amount, date: Utc::now()})
-    }
-
-    pub fn account_number(&self) -> &str {
-        &self.account_number
-    }
-
-    pub fn initial_amount(&self) -> i64 {
-        self.initial_amount
-    }
-
-    #[allow(dead_code)]
-    pub fn transactions(&self) -> &Vec<Transaction> {
-        &self.transactions
-    }
-}
-
-#[derive(PartialEq, Clone, Debug)]
 pub enum Transaction {
-    Deposit { amount: i64, date: DateTime<Utc> },
-    Withdraw { amount: i64, date: DateTime<Utc> },
 }
 
-impl Transaction {
-    pub fn amount(&self) -> i64 {
-        match self {
-            Transaction::Deposit{amount, ..} => *amount,
-            Transaction::Withdraw{amount, ..} => -amount
-        }
-    }
-}
 #[allow(unused_imports)]
 #[cfg(test)]
 mod tests {
