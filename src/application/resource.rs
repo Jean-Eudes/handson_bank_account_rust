@@ -28,7 +28,7 @@ pub async fn create_account(State(state): State<AppState>, Json(payload): Json<B
     state
         .use_case
         .lock()
-        .unwrap()
+        .await
         .create(payload.account_id, payload.initial_amount);
     StatusCode::CREATED
 }
@@ -37,7 +37,7 @@ pub async fn deposit(State(state): State<AppState>, Path(account_number): Path<S
     state
         .use_case
         .lock()
-        .unwrap()
+        .await
         .deposit(account_number, payload.amount)
         .map(|account| to_response(account))
         .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
@@ -47,7 +47,7 @@ pub async fn withdraw(State(state): State<AppState>, Path(account_number): Path<
     state
         .use_case
         .lock()
-        .unwrap()
+        .await
         .withdraw(account_number, payload.amount)
         .map(|account| to_response(account))
         .unwrap_or_else(|| StatusCode::NOT_FOUND.into_response())
@@ -57,7 +57,12 @@ pub async fn fetch(
     State(state): State<AppState>,
     Path(account_number): Path<String>,
 ) -> impl IntoResponse {
-    let found_bank_account = state.use_case.lock().unwrap().fetch(account_number);
+    let found_bank_account = state
+        .use_case
+        .lock()
+        .await
+        .fetch(account_number);
+
     match found_bank_account {
         Some(account) => (
             StatusCode::OK,

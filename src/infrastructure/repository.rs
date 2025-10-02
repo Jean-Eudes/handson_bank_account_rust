@@ -44,7 +44,7 @@ mod test {
         assert_eq!(repository.accounts.get(&String::from("A001")).unwrap().initial_amount(), 200);
         assert!(repository.accounts.get(&String::from("A001")).unwrap().transactions().is_empty());
     }
-   #[cfg(feature = "infra2")]
+   #[cfg(feature = "infra1")]
    #[test]
     fn should_load_account() {
         let mut repository = BankAccountAdapter::new();

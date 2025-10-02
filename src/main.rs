@@ -3,8 +3,9 @@ use crate::domain::use_case::BankAccountUseCase;
 use crate::infrastructure::repository::BankAccountAdapter;
 use axum::routing::{get, post};
 use axum::Router;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tokio::signal;
+use tokio::sync::Mutex;
 use tracing::info;
 
 mod application;
@@ -52,6 +53,7 @@ async fn shutdown_signal() {
 
     tokio::select! {_ = ctrl_c => {info!("received ctrl + C")}}
 }
+
 #[allow(unused_imports)]
 #[cfg(test)]
 mod tests {
@@ -63,7 +65,7 @@ mod tests {
     use axum_test::expect_json::__private::serde_json::json;
     use axum_test::TestServer;
     use mockall::predicate::eq;
-    use std::sync::Mutex;
+    use tokio::sync::Mutex;
 
     #[cfg(feature = "application1")]
     #[tokio::test]

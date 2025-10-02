@@ -170,7 +170,7 @@ cargo test --features domain4
 - Manipulation de l'api collection
 - Type Option
 
-### Étape 4
+### Étape 5
 
 #### Introduction
 
@@ -235,7 +235,7 @@ Axum fait lui même partie de l'écosystème d'un autre framework très populair
 - Serialisation et déserialisation de `struct` rust en objet JSON
 - Gestion des erreurs en rust.
 
-### Étape 5
+### Étape 6
 
 #### Énoncé
 

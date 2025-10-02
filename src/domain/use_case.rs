@@ -60,7 +60,7 @@ mod test {
         user_case.create(String::from("A0001"), 200);
     }
 
-    #[cfg(feature = "domain5")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_load_account() {
         let mut port = MockBankAccountPort::new();
@@ -75,7 +75,7 @@ mod test {
         assert_eq!(user_case.fetch(String::from("A0001")), Some(account));
     }
 
-    #[cfg(feature = "domain6")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_deposit_in_account() {
         let mut port = MockBankAccountPort::new();
@@ -95,7 +95,7 @@ mod test {
         assert!(result.is_some());
     }
 
-    #[cfg(feature = "domain7")]
+    #[cfg(feature = "domain4")]
     #[test]
     fn should_withdraw_from_account() {
         let mut port = MockBankAccountPort::new();
