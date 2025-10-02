@@ -56,6 +56,7 @@ Des liens vers la documentation vous seront également fourni pour vous aider da
 - Création de structure et d'énumérations
 - Création de fonctions
 - Création de méthodes
+- Utiliser un pointeur intelligent
 
 ### Étape 1
 
@@ -125,18 +126,40 @@ cargo test --features domain3
 
 ### Étape 4
 
+#### Introduction
+
+Dans cette partie, nous allons implémenter les use cases. Le role du use case est d'exposer des `services métiers` qui pourront ensuite être utilisé par notre API.
+Dans notre cas, les use cases vont faire le lien entre nos objets du domaine et notre repository.
+
+Pour celà, nous allons devoir `injecter` dans notre use case le repository qui va gérer la persistence.
+
+Il y a deux concepts importants à comprendre en rust pour celà. Le premier concept est la notion d'allocation dynamique de mémoire.
+Quand nous ne connaissons pas à l'avance la taille en mémoire de l'implementation de notre interface (c'est à dire au moment de la compilation), 
+nous allons devoir utiliser un `pointeur intelligent` pour stocker cette implémentation.
+En rust, c'est le type `Box<dyn Trait>` qui permet de faire celà. Le mot clef `dyn` indique que l'implémentation sera connue au moment de l'exécution, et le type `Box` indique que l'objet sera stocké sur le tas, 
+car sa taille sera connu au moment de l'exécution.
+
 #### Énoncé
 
-Dans le fichier `use_cases.rs`, créer deux fonctions :
-- `deposit` : qui prend en paramètre un mutable reference vers un `BankAccount` et un `amount` de type `u64`, et qui appelle la méthode `deposit` sur le compte bancaire, et sauvegarde le compte dans le repository.
-- `withdraw` : qui prend en paramètre un mutable reference vers un `BankAccount` et un `amount` de type `u64`, et qui appelle la méthode `withdraw` sur le compte bancaire et sauvegarde le compte dans le repository.
-- Creation de nouveau compte
-- Chargement d'un compte
+Dans le fichier `use_cases.rs`, implementer les 4 fonctions suivantes :
+- `create_bank_account` : qui permet de créer un compte bancaire ;
+- `get_bank_account` : qui renvoie les information sur le compte bancaire ;
+- `deposit` : permet de faire un dépôt sur le compte ;
+- `withdraw` : permet de faire un retrait sur le compte.
+
+Pour implémenter ces 4 méthodes, il va falloir charger un compte bancaire à partir du repository, effectuer une action métier en fonction de la méthode, et sauvegarder ensuite le résultat. 
 
 #### Test
 ```bash
 cargo test --features domain4
 ```
+
+#### Lien utile
+
+- https://doc.rust-lang.org/book/ch15-01-box.html
+- https://doc.rust-lang.org/rust-by-example/trait/dyn.html
+- https://doc.rust-lang.org/std/keyword.dyn.html
+
 
 ## Mise en place du repository
 
@@ -147,22 +170,46 @@ cargo test --features domain4
 - Visibilité des élements du modules
 - Trait PartialEq pour tester l'égalité
 
-### Énoncé
+### Étape 4
 
-#### Infra 1
+#### Introduction
 
-Dans le module repository, créer une structure `BankAccountAdapter` contenant une `HashMap` :
-- `accounts` : pour stocker les comptes
+L'objectif de cette étape est d'implémenter une base de données en mémoire, en utilisant une `HashMap` pour stocker les comptes bancaires.
+
+La complexité de cette étape va être lié au système de type de rust. En rust, dans un environnement multi threading comme un serveur web,
+Il n'est pas possible que deux threads accèdent en même temps à une même donnée. Pour celà, le compilateur nous oblige à utiliser un `Mutex` (mutual exclusion) qui va permettre de protéger l'accès à une donnée.
+
+Le second soucis va être lié à se que l'on appelle le système `d'ownership` de rust. En rust, chaque variable ne peut avoir qu'un seul propriétaire. 
+Dans notre cas, c'est notre HashMap qui va être propriétaire des comptes bancaires, nous allons être obligé de renvoyer une copie de l'objet via la méthode `clone`. 
+
+#### Énoncé
+
+Dans le module repository, Nous avons une structure `BankAccountAdapter` qui contient déjà une `HashMap` nous permettant de stocker les comptes.
 
 Création d'une implémentation de l'interface `BankAccountRepository` pour cette structure.
 
-Pour les méthodes :
+Implémenter les méthodes :
 - `save_account` : stocker les informations des comptes bancaires
 - `load` : lire les informations des comptes bancaires
+
+#### Test
 
 ```bash
 cargo test --features infra1
 ```
+
+#### Tips
+
+Pour le `Mutex`, nous remarquons que le unlock va automiquement être invoqué quand nous sortons de la méthode.
+Ce pattern s'appelle le RAII (Resource Acquisition Is Initialization).
+Quand une variable sort de son scope, sa méthode `drop` est automatiquement appelée, ce qui permet de libérer les ressources, donc dans notre cas de libérer le lock.
+
+#### Lien utile
+- https://doc.rust-lang.org/std/collections/struct.HashMap.html
+- https://doc.rust-lang.org/rust-by-example/std/hash.html
+- https://doc.rust-lang.org/std/sync/struct.Mutex.html
+- https://doc.rust-lang.org/rust-by-example/scope/raii.html
+
 
 ## Mise en place de la partie web
 
