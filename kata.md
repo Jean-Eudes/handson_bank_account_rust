@@ -136,8 +136,9 @@ Pour celà, nous allons devoir `injecter` dans notre use case le repository qui 
 Il y a deux concepts importants à comprendre en rust pour celà. Le premier concept est la notion d'allocation dynamique de mémoire.
 Quand nous ne connaissons pas à l'avance la taille en mémoire de l'implementation de notre interface (c'est à dire au moment de la compilation), 
 nous allons devoir utiliser un `pointeur intelligent` pour stocker cette implémentation.
-En rust, c'est le type `Box<dyn Trait>` qui permet de faire celà. Le mot clef `dyn` indique que l'implémentation sera connue au moment de l'exécution, et le type `Box` indique que l'objet sera stocké sur le tas, 
-car sa taille sera connu au moment de l'exécution.
+En rust, c'est le type `Box<dyn Trait>` qui permet de faire celà. Le mot clef `dyn` indique que l'implémentation sera connue au moment de l'exécution. 
+
+Le type `Box` indique que l'objet sera stocké sur le tas, car sa taille sera connu au moment de l'exécution.
 
 #### Énoncé
 
@@ -167,8 +168,7 @@ cargo test --features domain4
 
 - Implémentation d'un trait
 - Manipulation de l'api collection
-- Visibilité des élements du modules
-- Trait PartialEq pour tester l'égalité
+- Type Option
 
 ### Étape 4
 
@@ -190,7 +190,7 @@ Création d'une implémentation de l'interface `BankAccountRepository` pour cett
 
 Implémenter les méthodes :
 - `save_account` : stocker les informations des comptes bancaires
-- `load` : lire les informations des comptes bancaires
+- `load` : lire les informations des comptes bancaires. Cette méthode renvoie une Option, qui doit être vide si le compte bancaire n'est pas présent.
 
 #### Test
 
@@ -204,11 +204,18 @@ Pour le `Mutex`, nous remarquons que le unlock va automatiquement être appelé 
 Ce pattern s'appelle le RAII (Resource Acquisition Is Initialization).
 Quand une variable sort de son scope, sa méthode `drop` est automatiquement appelée, ce qui permet de libérer les ressources, donc dans notre cas de libérer le lock.
 
+La méthode `lock` du Mutex renvoie un type `Result` que nous verrons par la suite. Pour le moment, vous pouvez utiliser la méthode `unwrap` 
+qui permet de récupérer la valeur contenue dans le Result, ou de faire planter le programme en cas d'erreur. (C'est globalement une très mauvaise pratique, mais celà permet de faciliter l'exercice).
+
+Une Option est un type énuméré qui permet de représenter la présence ou l'absence d'une valeur. Il a deux variantes : Some et None.
+Comme le `null` n'existe pas en rust, c'est la seule façon en rust de représenter l'absence d'une valeur.
+
 #### Lien utile
 - https://doc.rust-lang.org/std/collections/struct.HashMap.html
 - https://doc.rust-lang.org/rust-by-example/std/hash.html
 - https://doc.rust-lang.org/std/sync/struct.Mutex.html
 - https://doc.rust-lang.org/rust-by-example/scope/raii.html
+- https://doc.rust-lang.org/std/option/enum.Option.html
 
 
 ## Mise en place de la partie web
@@ -219,19 +226,24 @@ Dans cette partie, nous allons implémenter la partie REST de notre micro servic
 Pour celà, nous avons choisi le framework axum, qui possède une syntaxe à la `express` (framework JS)
 pour exposer nos routes.
 
-Aum est un framework qui fair partie de l'écosystème d'un autre framework très populaire : `tokio`.
-`tokio` est un framework permettant de faire de la programmation asynchrone en rust, à l'aide de la syntaxe `async/await`. (très proche de la syntaxe JS)
+Axum fait lui même partie de l'écosystème d'un autre framework très populaire : `tokio`, qui permet de faire de la programmation asynchrone en rust, à l'aide de la syntaxe `async/await`. 
+(très proche de la syntaxe JS)
 
 ### Objectifs
 
-- Implémentation d'une route avec le framework AXUM
-- Serialisation et déserialisation des objets JSON
+- Implémentation de route avec le framework AXUM
+- Serialisation et déserialisation de `struct` rust en objet JSON
+- Gestion des erreurs en rust.
 
 ### Étape 5
 
 #### Énoncé
 
-Implementation de la route `create` permettant de créer un nouveau compte bancaire
+Dans cette partie, nous allons implémenter les 4 routes qui nous manque pour finaliser notre micro service.
+Si vous regardez le fichier `main.rs`, vous verrez que le serveur est déjà implémenté, et que les routes sont déjà préconfiguré.
+Les implémentations des routes sont dans le module `resource`.
+
+Pour commencer, nous allons implémenter la route `create` permettant de créer un nouveau compte bancaire
 
 ```
 POST /accounts 
@@ -242,6 +254,8 @@ POST /accounts
 
 HTTP Response code 201 CREATED
 ```
+Cette route doit retourner un code HTTP 201 en cas de succès, et un code HTTP 409 si le numéro de compte existe déjà.
+
 #### Test
 
 ```cargo test --features application1```
@@ -294,6 +308,25 @@ HTTP Response code 200 OK
 
 ```cargo test --features application4```
 
+
+#### Tips
+
+La sérialisation et la désérialisation des objets JSON est faite automatiquement par la librairie `serde`.
+
+Vous pouvez lancer votre serveur web à l'aide de la commande suivante :
+```bash
+cargo run
+```
+Cette commande lance le serveur web sur le port 3000. Vous pouvez ensuite le tester en utilisant par exemple une commande `curl`, ou tout autre client HTTP
+
+Exemple de commande curl :
+```bash
+curl -X POST http://localhost:3000/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"initial_amount": 200, "account_id": "A001"}'
+```
 #### Lien utile
 - https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html
+- https://tokio.rs/tokio/tutorial
 - https://docs.rs/axum/latest/axum/
+- https://doc.rust-lang.org/std/result/
