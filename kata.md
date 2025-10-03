@@ -145,7 +145,7 @@ Le type `Box` indique que l'objet sera stocké sur le tas, car sa taille sera co
 
 Dans le fichier `use_cases.rs`, implementer les 4 fonctions suivantes :
 - `create_bank_account` : qui permet de créer un compte bancaire ;
-- `get_bank_account` : qui renvoie les information sur le compte bancaire ;
+- `get_bank_account` : qui renvoie les informations sur le compte bancaire ;
 - `deposit` : permet de faire un dépôt sur le compte ;
 - `withdraw` : permet de faire un retrait sur le compte.
 
@@ -154,6 +154,31 @@ Pour implémenter ces 4 méthodes, il va falloir charger un compte bancaire à p
 #### Test
 ```bash
 cargo test --features domain4
+```
+
+### Étape 4 bis
+
+Pour la suite de l'exercice, nous allons devoir ajouter une macro rust à notre objet `BankAccount` et à notre objet `Transaction`. 
+Cette macro va nous permettre de cloner l'objet par la suite, et de faire certaines assertions pour nos tests.
+
+Une macro rust va générer du code au moment du build de notre projet. Ce code peut être visible avec la commande `cargo expand`.
+
+Ajouter sur votre struct `BankAccount` la macro `#[derive(Clone, Debug, PartialEq)]`.
+
+Celà devrait ressembler à ca :
+```rust
+#[derive(Clone, Debug, PartialEq)]
+pub struct BankAccount {
+    ...
+}
+```
+
+ainsi qu'à l'enum `Transaction`.
+```rust
+#[derive(Clone, Debug, PartialEq)]
+pub enum Transaction {
+    ...
+}
 ```
 
 #### Lien utile
@@ -192,6 +217,7 @@ Création d'une implémentation de l'interface `BankAccountRepository` pour cett
 Implémenter les méthodes :
 - `save_account` : stocker les informations des comptes bancaires
 - `load` : lire les informations des comptes bancaires. Cette méthode renvoie une Option, qui doit être vide si le compte bancaire n'est pas présent.
+Il va aussi être nécessaire de faire un clone de l'objet BankAccount. (un objet rust ne peut avoir qu'un seul propriétaire).
 
 #### Test
 
@@ -201,15 +227,15 @@ cargo test --features infra1
 
 #### Tips
 
-Pour le `Mutex`, nous remarquons que le unlock va automatiquement être appelé quand nous sortons de la méthode.
-Ce pattern s'appelle le RAII (Resource Acquisition Is Initialization).
-Quand une variable sort de son scope, sa méthode `drop` est automatiquement appelée, ce qui permet de libérer les ressources, donc dans notre cas de libérer le lock.
-
 La méthode `lock` du Mutex renvoie un type `Result` que nous verrons par la suite. Pour le moment, vous pouvez utiliser la méthode `unwrap` 
 qui permet de récupérer la valeur contenue dans le Result, ou de faire planter le programme en cas d'erreur. (C'est globalement une très mauvaise pratique, mais celà permet de faciliter l'exercice).
 
 Une Option est un type énuméré qui permet de représenter la présence ou l'absence d'une valeur. Il a deux variantes : Some et None.
 Comme le `null` n'existe pas en rust, c'est la seule façon en rust de représenter l'absence d'une valeur.
+
+Pour le `Mutex`, nous remarquons que le unlock va automatiquement être appelé quand nous sortons de la méthode.
+Ce pattern s'appelle le RAII (Resource Acquisition Is Initialization).
+Quand une variable sort de son scope, sa méthode `drop` est automatiquement appelée, ce qui permet de libérer les ressources, donc dans notre cas de libérer le lock.
 
 #### Lien utile
 - https://doc.rust-lang.org/std/collections/struct.HashMap.html
@@ -255,7 +281,7 @@ POST /accounts
 
 HTTP Response code 201 CREATED
 ```
-Cette route doit retourner un code HTTP 201 en cas de succès, et un code HTTP 409 si le numéro de compte existe déjà.
+Cette route doit retourner un code HTTP 201 en cas de succès.
 
 #### Test
 
@@ -265,10 +291,10 @@ cargo test --features application1
 
 #### Énoncé
 
-Implementation de la route `load` permettant de charger un élement depuis à l'aide de notre UseCase
+Implementation de la route `load` permettant de charger un élement depuis notre repository à l'aide de notre use case.
 
 ```
-GET /accounts/{acount_id}
+GET /accounts/{account_id}
 HTTP Response code 201 CREATED
 Response body:
 {
@@ -276,7 +302,13 @@ Response body:
     "account_id": "A001"
 }
 ```
-Si l'élément n'existe pas, renvoyer un code HTTP 404
+Si l'élément n'existe pas, renvoyer un code HTTP 404.
+
+#### Tips
+
+Pour gérer les erreurs, nous allons utiliser le type `Result` de rust. Ce type permet de renvoyer un résultat en cas de succès, et un autre résultat en cas d'erreur.
+Il n'existe pas vraiment de notion d'exception.
+
 #### Test
 
 ```bash
