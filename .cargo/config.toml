@@ -1,0 +1,2 @@
+[build]
+rustflags = ["-Aunused_imports", "-Adead_code", "-Aunused_variables"]
