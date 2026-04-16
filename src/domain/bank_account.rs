@@ -1,9 +1,11 @@
 use chrono::{DateTime, Utc};
 
+#[derive(Clone, PartialEq, Debug)]
 pub struct BankAccount {}
 
 impl BankAccount {}
 
+#[derive(Clone, PartialEq, Debug)]
 pub enum Transaction {}
 
 #[allow(unused_imports)]
