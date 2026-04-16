@@ -157,28 +157,22 @@ Pour implémenter ces 4 méthodes, il va falloir charger un compte bancaire à p
 cargo test --features domain4
 ```
 
-### Étape 4 bis
+### Étape 4 bis (aide à la comprehension)
 
-Pour la suite de l'exercice, nous allons devoir ajouter une macro rust à notre objet `BankAccount` et à notre objet `Transaction`. 
-Cette macro va nous permettre de cloner l'objet par la suite, et de faire certaines assertions pour nos tests.
+Si nous regardons la struct `BankAccount`, nous remarquons une syntaxe `#[derive()]` est dejà présente. Cette syntaxe correspond à une macro qui
+nous génère du code, en fonction des attibuts de la macro.
+
+Dans notre cas précis, cette macro va impléménter les trois traits (interfaces) sus nommés, et génerer le code correpondant.
 
 Une macro rust va générer du code au moment du build de notre projet. Ce code peut être visible avec la commande `cargo expand`.
 
-Ajouter sur votre struct `BankAccount` la macro `#[derive(Clone, Debug, PartialEq)]`.
-
-Celà devrait ressembler à ca :
-```rust
-#[derive(Clone, Debug, PartialEq)]
-pub struct BankAccount {
-    ...
-}
-```
-
-ainsi qu'à l'enum `Transaction`.
-```rust
-#[derive(Clone, Debug, PartialEq)]
-pub enum Transaction {
-    ...
+``` rust
+#[automatically_derived]
+impl ::core::fmt::Debug for BankAccount {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::write_str(f, "BankAccount")
+    }
 }
 ```
 
