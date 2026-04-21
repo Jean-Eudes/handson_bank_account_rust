@@ -23,7 +23,7 @@ Pour installer Rust, il faut suivre les instructions de la page https://rust-lan
 
 Pour windows, il y a deux façons d'installer rust :
 - directement sous windows, mais avec en prérequis `Visual Studio C++ build`.
-- en utilisant le sous système `WSL` (Windows Subsystem for Linux).
+- en utilisant le sous-système `WSL` (Windows Subsystem for Linux).
 
 La seconde méthode est généralement plus simple.
 
@@ -44,7 +44,7 @@ Il permet par la suite de mettre à jour ces outils en utilisant la commande `ru
 
 Dans cette section, nous allons créer la structure de données représentant un compte bancaire, ainsi que les opérations possibles sur ce compte.
 
-Notre domain contiendra uniquement la logique métier, sans dépendance vers un framework web ou une base de données, et va être inspiré du DDD.
+Notre domaine contiendra uniquement la logique métier, sans dépendance vers un framework web ou une base de données, et va être inspiré du DDD.
 
 Pour cette étape, l'ensemble du code est dans le module `domain`. Les tests sont codés, et vous pourrez passer à l'étape suivante une fois que les tests seront OK pour une étape.
 La commande pour lancer les tests pour une étape est donnée en dessous de l'énoncé de chaque étape.
@@ -130,23 +130,23 @@ cargo test --features domain3
 
 #### Introduction
 
-Dans cette partie, nous allons implémenter les use cases. Le role du use case est d'exposer des `services métiers` qui pourront ensuite être utilisé par notre API.
+Dans cette partie, nous allons implémenter les use cases. Le rôle du use case est d'exposer des `services métiers` qui pourront ensuite être utilisés par notre API.
 Dans notre cas, les use cases vont faire le lien entre nos objets du domaine et notre repository.
 
-Pour celà, nous allons devoir `injecter` dans notre use case le repository qui va gérer la persistence.
+Pour cela, nous allons devoir `injecter` dans notre use case le repository qui va gérer la persistance.
 
-Il y a deux concepts importants à comprendre en rust pour celà. Le premier concept est la notion d'allocation dynamique de mémoire.
-Quand nous ne connaissons pas à l'avance la taille en mémoire de l'implementation de notre interface (c'est à dire au moment de la compilation), 
+Il y a deux concepts importants à comprendre en rust pour cela. Le premier concept est la notion d'allocation dynamique de mémoire.
+Quand nous ne connaissons pas à l'avance la taille en mémoire de l'implémentation de notre interface (c'est-à-dire au moment de la compilation), 
 nous allons devoir utiliser un `pointeur intelligent` pour stocker cette implémentation.
-En rust, c'est le type `Box<dyn Trait>` qui permet de faire celà. Le mot clef `dyn` indique que l'implémentation sera connue au moment de l'exécution. 
+En rust, c'est le type `Box<dyn Trait>` qui permet de faire cela. Le mot clef `dyn` indique que l'implémentation sera connue au moment de l'exécution. 
 
-Le type `Box` indique que l'objet sera stocké sur le tas, car sa taille sera connu au moment de l'exécution.
+Le type `Box` indique que l'objet sera stocké sur le tas, car sa taille sera connue au moment de l'exécution.
 
 #### Énoncé
 
-Dans le fichier `use_cases.rs`, implementer les 4 fonctions suivantes :
-- `create_bank_account` : qui permet de créer un compte bancaire ;
-- `get_bank_account` : qui renvoie les informations sur le compte bancaire ;
+Dans le fichier `use_case.rs`, implémenter les 4 fonctions suivantes :
+- `create` : qui permet de créer un compte bancaire ;
+- `fetch` : qui renvoie les informations sur le compte bancaire ;
 - `deposit` : permet de faire un dépôt sur le compte ;
 - `withdraw` : permet de faire un retrait sur le compte.
 
@@ -157,12 +157,12 @@ Pour implémenter ces 4 méthodes, il va falloir charger un compte bancaire à p
 cargo test --features domain4
 ```
 
-### Étape 4 bis (aide à la comprehension)
+### Étape 4 bis (aide à la compréhension)
 
-Si nous regardons la struct `BankAccount`, nous remarquons une syntaxe `#[derive()]` est dejà présente. Cette syntaxe correspond à une macro qui
-nous génère du code, en fonction des attibuts de la macro.
+Si nous regardons la struct `BankAccount`, nous remarquons qu'une syntaxe `#[derive()]` est déjà présente. Cette syntaxe correspond à une macro qui
+nous génère du code, en fonction des attributs de la macro.
 
-Dans notre cas précis, cette macro va impléménter les trois traits (interfaces) sus nommés, et génerer le code correpondant.
+Dans notre cas précis, cette macro va implémenter les trois traits (interfaces) sus nommés, et générer le code correspondant.
 
 Une macro rust va générer du code au moment du build de notre projet. Ce code peut être visible avec la commande `cargo expand`.
 
@@ -197,21 +197,21 @@ impl ::core::fmt::Debug for BankAccount {
 
 L'objectif de cette étape est d'implémenter une base de données en mémoire, en utilisant une `HashMap` pour stocker les comptes bancaires.
 
-La complexité de cette étape va être lié au système de type de rust. En rust, dans un environnement multi threading comme un serveur web,
-Il n'est pas possible que deux threads accèdent en même temps à une même donnée. Pour celà, le compilateur nous oblige à utiliser un `Mutex` (mutual exclusion) qui va permettre de protéger l'accès à une donnée.
+La complexité de cette étape va être liée au système de type de rust. En rust, dans un environnement multi-threading comme un serveur web,
+il n'est pas possible que deux threads accèdent en même temps à une même donnée. Pour cela, le compilateur nous oblige à utiliser un `Mutex` (mutual exclusion) qui va permettre de protéger l'accès à une donnée.
 
-Le second soucis va être lié à se que l'on appelle le système `d'ownership` de rust. En rust, chaque variable ne peut avoir qu'un seul propriétaire. 
+Le second souci va être lié à ce que l'on appelle le système `d'ownership` de rust. En rust, chaque variable ne peut avoir qu'un seul propriétaire. 
 Dans notre cas, c'est notre HashMap qui va être propriétaire des comptes bancaires, nous allons être obligé de renvoyer une copie de l'objet via la méthode `clone`. 
 
 #### Énoncé
 
-Dans le module repository, Nous avons une structure `BankAccountAdapter` qui contient déjà une `HashMap` nous permettant de stocker les comptes.
+Dans le module repository, nous avons une structure `BankAccountAdapter` qui contient déjà une `HashMap` nous permettant de stocker les comptes.
 
-Création d'une implémentation de l'interface `BankAccountRepository` pour cette structure.
+Création d'une implémentation du trait `BankAccountPort` pour cette structure.
 
 Implémenter les méthodes :
 - `save_account` : stocker les informations des comptes bancaires
-- `load` : lire les informations des comptes bancaires. Cette méthode renvoie une Option, qui doit être vide si le compte bancaire n'est pas présent.
+- `load` : lire les informations des comptes bancaires. Cette méthode renvoie une `Option`, qui doit être vide si le compte bancaire n'est pas présent.
 Il va aussi être nécessaire de faire un clone de l'objet BankAccount. (un objet rust ne peut avoir qu'un seul propriétaire).
 
 #### Test
@@ -223,7 +223,7 @@ cargo test --features infra1
 #### Tips
 
 La méthode `lock` du Mutex renvoie un type `Result` que nous verrons par la suite. Pour le moment, vous pouvez utiliser la méthode `unwrap` 
-qui permet de récupérer la valeur contenue dans le Result, ou de faire planter le programme en cas d'erreur. (C'est globalement une très mauvaise pratique, mais celà permet de faciliter l'exercice).
+qui permet de récupérer la valeur contenue dans le `Result`, ou de faire planter le programme en cas d'erreur. (C'est globalement une très mauvaise pratique, mais cela permet de faciliter l'exercice).
 
 Une Option est un type énuméré qui permet de représenter la présence ou l'absence d'une valeur. Il a deux variantes : Some et None.
 Comme le `null` n'existe pas en rust, c'est la seule façon en rust de représenter l'absence d'une valeur.
@@ -244,8 +244,8 @@ Quand une variable sort de son scope, sa méthode `drop` est automatiquement app
 
 #### Introduction
 
-Dans cette partie, nous allons implémenter la partie REST de notre micro services.
-Pour celà, nous avons choisi le framework axum, qui possède une syntaxe à la `express` (framework JS)
+Dans cette partie, nous allons implémenter la partie REST de notre microservice.
+Pour cela, nous avons choisi le framework axum, qui possède une syntaxe à la `express` (framework JS)
 pour exposer nos routes.
 
 Axum fait lui même partie de l'écosystème d'un autre framework très populaire : `tokio`, qui permet de faire de la programmation asynchrone en rust, à l'aide de la syntaxe `async/await`. 
@@ -261,8 +261,8 @@ Axum fait lui même partie de l'écosystème d'un autre framework très populair
 
 #### Énoncé
 
-Dans cette partie, nous allons implémenter les 4 routes qui nous manque pour finaliser notre micro service.
-Si vous regardez le fichier `main.rs`, vous verrez que le serveur est déjà implémenté, et que les routes sont déjà préconfiguré.
+Dans cette partie, nous allons implémenter les 4 routes qui nous manquent pour finaliser notre microservice.
+Si vous regardez le fichier `main.rs`, vous verrez que le serveur est déjà implémenté, et que les routes sont déjà préconfigurées.
 Les implémentations des routes sont dans le module `resource`.
 
 Pour commencer, nous allons implémenter la route `create` permettant de créer un nouveau compte bancaire
@@ -286,7 +286,7 @@ cargo test --features application1
 
 #### Énoncé
 
-Implementation de la route `load` permettant de charger un élement depuis notre repository à l'aide de notre use case.
+Implémentation de la route `load` permettant de charger un élément depuis notre repository à l'aide de notre use case.
 
 ```
 GET /accounts/{account_id}
@@ -312,10 +312,10 @@ cargo test --features application2
 
 #### Énoncé
 
-Implementation de la route `deposit` permettant de déposer un montant sur un compte bancaire à l'aide de notre UseCase
+Implémentation de la route `deposit` permettant de déposer un montant sur un compte bancaire à l'aide de notre UseCase
 
 ```
-POST /accounts/{acount_id}/deposits
+POST /accounts/{account_id}/deposits
 {
     "amount": 200,
 }
@@ -329,10 +329,10 @@ cargo test --features application3
 
 #### Énoncé
 
-Implementation de la route `withdraw` permettant de retirer un montant depuis un compte bancaire à l'aide de notre UseCase
+Implémentation de la route `withdraw` permettant de retirer un montant depuis un compte bancaire à l'aide de notre UseCase
 
 ```
-POST /accounts/{acount_id}/withdraws
+POST /accounts/{account_id}/withdraws
 {
     "amount": 200,
 }
