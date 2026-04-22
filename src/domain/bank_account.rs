@@ -3,7 +3,8 @@ use chrono::{DateTime, Utc};
 #[derive(Clone, PartialEq, Debug)]
 pub struct BankAccount {
     account_number: String,
-    initial_amount: i16
+    initial_amount: i16,
+    transactions: Vec<Transaction>,
 }
 
 impl BankAccount {
@@ -11,6 +12,7 @@ impl BankAccount {
         return BankAccount {
             account_number,
             initial_amount,
+            transactions: Vec::new()
         };
     }
 
@@ -20,7 +22,20 @@ impl BankAccount {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub enum Transaction {}
+pub enum Transaction {
+    Deposit { amount: i16, date: DateTime<Utc>},
+    Withdraw { amount: i16, date: DateTime<Utc>},
+}
+
+impl Transaction {
+    fn amount(&self) -> i16 {
+        match self {
+            Transaction::Deposit { amount, date } => *amount, // déréfencement car les var internes sont aussi par défaurt des référeence et il faut pour les types primitifs utiliser des valeurs et non des références
+            // Transaction::Deposit { amount, date } => amount * 1,
+            Transaction::Withdraw { amount, date } => amount * -1,
+        }
+    }
+}
 
 #[allow(unused_imports)]
 #[cfg(test)]
