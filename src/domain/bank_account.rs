@@ -1,12 +1,57 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct BankAccount {}
+pub struct BankAccount {
+    account_number: String,
+    initial_amount: i16,
+    transactions: Vec<Transaction>,
+}
 
-impl BankAccount {}
+impl BankAccount {
+    fn create_new_account(account_number: String, initial_amount: i16) -> BankAccount {
+        return BankAccount {
+            account_number,
+            initial_amount,
+            transactions: Vec::new()
+        };
+    }
+
+    fn balance(&self) -> i16 {
+        self.initial_amount
+    }
+
+    fn deposit(&mut self, amount: i16) {
+        let transaction: Transaction = Transaction::Deposit { amount: amount, date: Utc::now() };
+        self.apply_transaction(transaction);
+    }
+
+    fn withdraw(&mut self, amount: i16) {
+        let transaction: Transaction = Transaction::Withdraw { amount: amount, date: Utc::now() };
+        self.apply_transaction(transaction);
+    }
+
+    fn apply_transaction(&mut self, transaction: Transaction) {
+        self.initial_amount += transaction.amount();
+        self.transactions.push(transaction);
+    }
+
+}
 
 #[derive(Clone, PartialEq, Debug)]
-pub enum Transaction {}
+pub enum Transaction {
+    Deposit { amount: i16, date: DateTime<Utc>},
+    Withdraw { amount: i16, date: DateTime<Utc>},
+}
+
+impl Transaction {
+    fn amount(&self) -> i16 {
+        match self {
+            // Transaction::Deposit { amount, date } => *amount, // déréfencement car les var internes sont aussi par défaurt des référeence et il faut pour les types primitifs utiliser des valeurs et non des références
+            Transaction::Deposit { amount, date } => amount * 1, // la multiplication par 1 va recréer un résultat qui sera une valeur et non une référence
+            Transaction::Withdraw { amount, date } => amount * -1,
+        }
+    }
+}
 
 #[allow(unused_imports)]
 #[cfg(test)]
