@@ -1,9 +1,23 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct BankAccount {}
+pub struct BankAccount {
+    account_number: String,
+    initial_amount: i16
+}
 
-impl BankAccount {}
+impl BankAccount {
+    fn create_new_account(account_number: String, initial_amount: i16) -> BankAccount {
+        return BankAccount {
+            account_number,
+            initial_amount,
+        };
+    }
+
+    fn balance(&self) -> i16 {
+        self.initial_amount
+    }
+}
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Transaction {}
