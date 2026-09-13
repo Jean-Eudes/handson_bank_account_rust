@@ -15,7 +15,7 @@ application3 = ["application2"]
 application4 = ["application3"]
 
 [dependencies]
-chrono = { version = "0.4.40", features = ["serde"] }
+jiff = { version = "0.2.0", features = ["serde"] }
 axum = { version = "0.8.3", features = ["macros", "http2"] }
 tokio = { version = "1.44.1", features = ["rt-multi-thread", "signal"] }
 serde = { version = "1.0.219", features = ["derive"] }

@@ -1,29 +1,40 @@
-use chrono::{DateTime, Utc};
+use jiff::{Timestamp, Zoned, tz::TimeZone};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BankAccount {
     account_number: String,
     initial_amount: i64,
-    transactions: Vec<Transaction>
+    transactions: Vec<Transaction>,
 }
 
 impl BankAccount {
     pub fn create_new_account(account_number: String, initial_amount: i64) -> BankAccount {
-        BankAccount{
-         account_number, initial_amount, transactions: vec![]
+        BankAccount {
+            account_number,
+            initial_amount,
+            transactions: vec![],
         }
     }
 
     pub fn balance(&self) -> i64 {
-        self.transactions.iter()
-            .fold(self.initial_amount, |acc, transaction| acc + transaction.amount())
+        self.transactions
+            .iter()
+            .fold(self.initial_amount, |acc, transaction| {
+                acc + transaction.amount()
+            })
     }
 
     pub fn deposit(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Deposit {amount, date: Utc::now()})
+        self.transactions.push(Transaction::Deposit {
+            amount,
+            date: Timestamp::now().to_zoned(TimeZone::UTC),
+        })
     }
     pub fn with_draw(&mut self, amount: i64) {
-        self.transactions.push(Transaction::Withdraw {amount, date: Utc::now()})
+        self.transactions.push(Transaction::Withdraw {
+            amount,
+            date: Timestamp::now().to_zoned(TimeZone::UTC),
+        })
     }
 
     pub fn account_number(&self) -> &str {
@@ -42,15 +53,15 @@ impl BankAccount {
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Transaction {
-    Deposit { amount: i64, date: DateTime<Utc> },
-    Withdraw { amount: i64, date: DateTime<Utc> },
+    Deposit { amount: i64, date: Zoned },
+    Withdraw { amount: i64, date: Zoned },
 }
 
 impl Transaction {
     pub fn amount(&self) -> i64 {
         match self {
-            Transaction::Deposit{amount, ..} => *amount,
-            Transaction::Withdraw{amount, ..} => -amount
+            Transaction::Deposit { amount, .. } => *amount,
+            Transaction::Withdraw { amount, .. } => -amount,
         }
     }
 }
@@ -58,7 +69,6 @@ impl Transaction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Utc;
 
     #[cfg(feature = "domain1")]
     #[test]
@@ -85,7 +95,10 @@ mod tests {
     #[test]
     fn should_compute_transaction_deposit_amount() {
         // Given
-        let transaction = Transaction::Deposit { amount: 1_000, date: Utc::now() };
+        let transaction = Transaction::Deposit {
+            amount: 1_000,
+            date: Timestamp::now().to_zoned(TimeZone::UTC),
+        };
 
         // When & Then
         assert_eq!(transaction.amount(), 1_000);
@@ -95,7 +108,10 @@ mod tests {
     #[test]
     fn should_compute_transaction_withdraw_amount() {
         // Given
-        let transaction = Transaction::Withdraw { amount: 1_000, date: Utc::now() };
+        let transaction = Transaction::Withdraw {
+            amount: 1_000,
+            date: Timestamp::now().to_zoned(TimeZone::UTC),
+        };
 
         // When & Then
         assert_eq!(transaction.amount(), -1_000);
@@ -123,16 +139,13 @@ mod tests {
         account.deposit(1000);
 
         // Then
-        assert_eq!(
-            matches!(
-                account.transactions[0],
-                Transaction::Deposit {
-                    date: _date,
-                    amount: 1000
-                }
-            ),
-            true
-        );
+        assert!(matches!(
+            account.transactions[0],
+            Transaction::Deposit {
+                date: _,
+                amount: 1000
+            }
+        ));
     }
 
     #[cfg(feature = "domain3")]
@@ -145,16 +158,13 @@ mod tests {
         account.with_draw(500);
 
         // Then
-        assert_eq!(
-            matches!(
-                account.transactions[0],
-                Transaction::Withdraw {
-                    date: _date,
-                    amount: 500
-                }
-            ),
-            true
-        );
+        assert!(matches!(
+            account.transactions[0],
+            Transaction::Withdraw {
+                date: _,
+                amount: 500
+            }
+        ));
     }
 
     #[cfg(feature = "domain3")]
