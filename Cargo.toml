@@ -15,12 +15,12 @@ application3 = ["application2"]
 application4 = ["application3"]
 
 [dependencies]
-jiff = { version = "0.2.0", features = ["serde"] }
-axum = { version = "0.8.3", features = ["macros", "http2"] }
-tokio = { version = "1.44.1", features = ["rt-multi-thread", "signal"] }
-serde = { version = "1.0.219", features = ["derive"] }
-tracing = "0.1"
+jiff = { version = "0.2.37", features = ["serde"] }
+axum = { version = "0.8.9", features = ["macros", "http2"] }
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "signal"] }
+serde = { version = "1.0.229", features = ["derive"] }
+tracing = "0.1.44"
 
 [dev-dependencies]
-axum-test = "18.1.0"
+axum-test = "18.7.0"
 mockall = "0.13.1"
